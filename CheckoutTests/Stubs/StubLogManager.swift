@@ -6,14 +6,12 @@
 //
 
 import Foundation
-import CheckoutEventLoggerKit
 @testable import Checkout
 
 // swiftlint:disable large_tuple
 enum StubLogManager: LogManaging {
   static private(set) var setupCalledWith: [(
     environment: Checkout.Environment,
-    logger: CheckoutEventLogging,
     uiDevice: DeviceInformationProviding,
     dateProvider: DateProviding,
     anyCodable: AnyCodableProtocol
@@ -21,12 +19,11 @@ enum StubLogManager: LogManaging {
 
   static func setup(
     environment: Checkout.Environment,
-    logger checkoutEventLogger: CheckoutEventLogging,
     uiDevice: DeviceInformationProviding,
     dateProvider: DateProviding,
     anyCodable: AnyCodableProtocol
   ) {
-    setupCalledWith.append((environment, checkoutEventLogger, uiDevice, dateProvider, anyCodable))
+    setupCalledWith.append((environment, uiDevice, dateProvider, anyCodable))
   }
 
   static private(set) var queueCalledWith: [CheckoutLogEvent] = []

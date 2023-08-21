@@ -6,7 +6,6 @@
 //
 
 import XCTest
-import CheckoutEventLoggerKit
 @testable import Checkout
 
 class CheckoutLogEventTests: XCTestCase {

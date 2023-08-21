@@ -27,8 +27,6 @@ let package = Package(
         .target(
             name: "Frames",
             dependencies: [
-                .product(name: "CheckoutEventLoggerKit",
-                         package: "checkout-event-logger-ios-framework"),
                 "PhoneNumberKit",
                 "Checkout"
             ],
@@ -40,10 +38,7 @@ let package = Package(
         ),
         .target(
             name: "Checkout",
-            dependencies: [
-                .product(name: "CheckoutEventLoggerKit",
-                         package: "checkout-event-logger-ios-framework"),
-            ],
+            dependencies: [],
             path: "Checkout/Source"
         ),
         .testTarget(

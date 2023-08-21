@@ -5,7 +5,6 @@
 //  Created by Harry Brown on 22/12/2021.
 //
 
-import CheckoutEventLoggerKit
 import XCTest
 
 class StubCheckoutEventLogger: CheckoutEventLogging {

@@ -6,12 +6,10 @@
 //
 
 import Foundation
-import CheckoutEventLoggerKit
 
 protocol LogManaging {
   static func setup(
     environment: Checkout.Environment,
-    logger: CheckoutEventLogging,
     uiDevice: DeviceInformationProviding,
     dateProvider: DateProviding,
     anyCodable: AnyCodableProtocol
@@ -30,7 +28,6 @@ extension LogManaging {
 enum LogManager: LogManaging {
   private static var initialised = false
   private static var typesRegistered = false
-  private static var logger: CheckoutEventLogging?
   private static let loggingQueue = DispatchQueue(
     label: "checkout-log-store-queue",
     qos: .background,
@@ -45,55 +42,31 @@ enum LogManager: LogManaging {
   static func resetCorrelationID() {
     loggingQueue.async {
       correlationID = UUID().uuidString.lowercased()
-      logger?.add(
-        metadata: CheckoutEventLogger.MetadataKey.correlationID.rawValue,
-        value: correlationID
-      )
       logsSent = []
     }
   }
 
   static func setup(
     environment: Checkout.Environment,
-    logger: CheckoutEventLogging,
     uiDevice: DeviceInformationProviding,
     dateProvider: DateProviding,
     anyCodable: AnyCodableProtocol
   ) {
-    guard !initialised || !(logger is CheckoutEventLogger) else {
+    guard !initialised else {
       return
     }
 
-    initialised = logger is CheckoutEventLogger
+    initialised = true
 
-    self.logger = logger
     self.dateProvider = dateProvider
     self.anyCodable = anyCodable
 
     registerTypes()
 
-    #if DEBUG
-    logger.enableLocalProcessor(monitoringLevel: .debug)
-    #endif
-
     let appBundle = Bundle.main
     let appPackageName = appBundle.bundleIdentifier ?? "unavailableAppPackageName"
     let appPackageVersion = appBundle
       .infoDictionary?["CFBundleShortVersionString"] as? String ?? "unavailableAppPackageVersion"
-
-    logger.enableRemoteProcessor(
-      environment: loggingEnironment(from: environment),
-      remoteProcessorMetadata: RemoteProcessorMetadata(
-        productIdentifier: Constants.Product.name,
-        productVersion: Constants.Product.version,
-        environment: environment.rawValue,
-        appPackageName: appPackageName,
-        appPackageVersion: appPackageVersion,
-        deviceName: uiDevice.modelName,
-        platform: "iOS",
-        osVersion: uiDevice.systemVersion
-      )
-    )
 
     resetCorrelationID()
   }
@@ -101,32 +74,12 @@ enum LogManager: LogManaging {
   static func queue(event: CheckoutLogEvent, completion: @escaping (() -> Void)) {
     let date = dateProvider.current()
     loggingQueue.async {
-      log(event, date: date)
       completion()
     }
   }
 
-  private static func log(_ event: CheckoutLogEvent, date: Date) {
-    let logEvent = event.event(date: date)
-
-    guard firstTimeLogSent(id: logEvent.typeIdentifier) || event.sendEveryTime else {
-      return
-    }
-
-    logger?.log(event: logEvent)
-  }
-
   private static func firstTimeLogSent(id: String) -> Bool {
     return logsSent.insert(id).inserted
-  }
-
-  private static func loggingEnironment(from environment: Checkout.Environment) -> CheckoutEventLoggerKit.Environment {
-    switch environment {
-    case .sandbox:
-      return .sandbox
-    case .production:
-      return .production
-    }
   }
 
   private static func registerTypes() {

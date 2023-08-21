@@ -1,5 +1,4 @@
 import Foundation
-import CheckoutEventLoggerKit
 
 enum FramesLogEvent: Equatable, PropertyProviding {
 
@@ -81,57 +80,6 @@ enum FramesLogEvent: Equatable, PropertyProviding {
             return "warn"
         case .exception:
             return "exception"
-        }
-    }
-
-    var monitoringLevel: MonitoringLevel {
-        switch self {
-        case .paymentFormInitialised,
-             .paymentFormPresented,
-             .paymentFormSubmitted,
-             .paymentFormSubmittedResult,
-             .paymentFormCanceled,
-             .billingFormPresented,
-             .billingFormCanceled,
-             .billingFormSubmit,
-             .threeDSWebviewPresented:
-            return .info
-        case .warn:
-            return .warn
-        case .exception:
-            return .error
-        case .threeDSChallengeLoaded(let success),
-             .threeDSChallengeComplete(let success, _):
-            return success ? .info : .error
-        }
-    }
-
-    var properties: [Property: AnyCodable] {
-        switch self {
-        case .paymentFormSubmitted,
-                .paymentFormCanceled,
-                .billingFormPresented,
-                .billingFormCanceled,
-                .billingFormSubmit,
-                .threeDSWebviewPresented:
-            return [:]
-        case .paymentFormPresented:
-            return [Property.locale: Locale.current.identifier].mapValues(AnyCodable.init(_:))
-        case let .paymentFormInitialised(environment):
-            let environmentString = environment.rawValue == "live" ? "production" : environment.rawValue
-            return [.environment: environmentString].mapValues(AnyCodable.init(_:))
-        case let .paymentFormSubmittedResult(token):
-            return [.tokenID: AnyCodable(token)]
-        case let .threeDSChallengeLoaded(success):
-            return [.success: success].mapValues(AnyCodable.init(_:))
-        case let .threeDSChallengeComplete(success, tokenID):
-            return [.success: success]
-                .updating(key: .tokenID, value: tokenID)
-                .mapValues(AnyCodable.init(_:))
-        case let .warn(message),
-            let .exception(message):
-            return [.message: message]
-                .mapValues(AnyCodable.init(_:))
         }
     }
 }

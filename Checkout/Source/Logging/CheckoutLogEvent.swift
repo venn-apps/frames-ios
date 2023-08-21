@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import CheckoutEventLoggerKit
 
 enum CheckoutLogEvent: Equatable {
   case tokenRequested(TokenRequestData)
@@ -16,14 +15,6 @@ enum CheckoutLogEvent: Equatable {
   case validateExpiryString
   case validateExpiryInteger
   case validateCVV
-
-  func event(date: Date) -> Event {
-    Event(
-      typeIdentifier: typeIdentifier,
-      time: date,
-      monitoringLevel: monitoringLevel,
-      properties: properties.unpackEnumKeys().mapValues(CheckoutEventLoggerKit.AnyCodable.init(_:)))
-  }
 
   var sendEveryTime: Bool {
     switch self {
@@ -54,28 +45,6 @@ enum CheckoutLogEvent: Equatable {
     case .validateCVV:
       return "card_validator_cvv"
     }
-  }
-
-  private var monitoringLevel: MonitoringLevel {
-    switch self {
-    case .tokenRequested,
-      .cardValidator,
-      .validateCardNumber,
-      .validateExpiryString,
-      .validateExpiryInteger,
-      .validateCVV:
-      return .info
-    case .tokenResponse(_, let tokenResponseData):
-      return level(from: tokenResponseData.httpStatusCode)
-    }
-  }
-
-  private func level(from httpStatusCode: Int?) -> MonitoringLevel {
-    guard let httpStatusCode = httpStatusCode else {
-      return .info
-    }
-
-    return 200..<300 ~= httpStatusCode ? .info : .error
   }
 
   private var properties: [PropertyKey: Any] {

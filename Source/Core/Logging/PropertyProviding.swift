@@ -6,14 +6,6 @@
 //  Copyright © 2022 Checkout. All rights reserved.
 //
 
-import CheckoutEventLoggerKit
-
 protocol PropertyProviding {
-  var properties: [FramesLogEvent.Property: AnyCodable] { get }
-}
 
-extension PropertyProviding {
-  var rawProperties: [String: AnyCodable] {
-    return properties.mapKeys(\.rawValue)
-  }
 }

@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import CheckoutEventLoggerKit
 
 protocol AnyCodableProtocol {
   func add(customEquality: @escaping (Any, Any) -> Bool, customEncoding: @escaping (Any, inout SingleValueEncodingContainer) throws -> Bool)
@@ -14,6 +13,6 @@ protocol AnyCodableProtocol {
 
 final class AnyCodable: AnyCodableProtocol {
   func add(customEquality: @escaping (Any, Any) -> Bool, customEncoding: @escaping (Any, inout SingleValueEncodingContainer) throws -> Bool) {
-    CheckoutEventLoggerKit.AnyCodable.add(customEquality: customEquality, customEncoding: customEncoding)
+    
   }
 }

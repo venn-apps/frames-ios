@@ -7,7 +7,6 @@
 
 import Foundation
 import UIKit
-import CheckoutEventLoggerKit
 
 public protocol ExpiryDateValidating {
   func validate(expiryMonth: String, expiryYear: String) -> Result<ExpiryDate, ValidationError.ExpiryDate>
@@ -39,7 +38,6 @@ public class CardValidator: CardValidating {
 
     logManager.setup(
       environment: environment,
-      logger: CheckoutEventLogger(productName: Constants.Product.name),
       uiDevice: UIDevice.current,
       dateProvider: DateProvider(),
       anyCodable: AnyCodable()

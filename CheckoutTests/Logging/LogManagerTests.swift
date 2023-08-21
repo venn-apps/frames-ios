@@ -6,7 +6,6 @@
 //
 
 import XCTest
-import CheckoutEventLoggerKit
 @testable import Checkout
 
 // swiftlint:disable implicitly_unwrapped_optional type_body_length

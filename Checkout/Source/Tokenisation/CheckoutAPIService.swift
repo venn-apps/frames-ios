@@ -7,7 +7,6 @@
 
 import Foundation
 import UIKit
-import CheckoutEventLoggerKit
 
 public protocol CheckoutAPIProtocol {
   func createToken(_ paymentSource: PaymentSource, completion: @escaping (Result<TokenDetails, TokenisationError.TokenRequest>) -> Void)
@@ -43,7 +42,6 @@ final public class CheckoutAPIService: CheckoutAPIProtocol {
 
     logManager.setup(
       environment: environment,
-      logger: CheckoutEventLogger(productName: Constants.Product.name),
       uiDevice: UIDevice.current,
       dateProvider: DateProvider(),
       anyCodable: AnyCodable()

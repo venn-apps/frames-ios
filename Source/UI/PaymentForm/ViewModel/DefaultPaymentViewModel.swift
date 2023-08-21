@@ -16,7 +16,6 @@ class DefaultPaymentViewModel: PaymentViewModel {
     var cardTokenRequested: ((Result<TokenDetails, TokenisationError.TokenRequest>) -> Void)?
     var supportedSchemes: [Card.Scheme]
     var cardValidator: CardValidator
-    var logger: FramesEventLogging
     var checkoutAPIService: CheckoutAPIProtocol
     var paymentFormStyle: PaymentFormStyle?
     var billingFormStyle: BillingFormStyle?
@@ -32,7 +31,6 @@ class DefaultPaymentViewModel: PaymentViewModel {
 
     init(checkoutAPIService: CheckoutAPIProtocol,
          cardValidator: CardValidator,
-         logger: FramesEventLogging,
          billingFormData: BillingForm?,
          paymentFormStyle: PaymentFormStyle?,
          billingFormStyle: BillingFormStyle?,
@@ -42,7 +40,6 @@ class DefaultPaymentViewModel: PaymentViewModel {
         self.cardValidator = cardValidator
         self.paymentFormStyle = paymentFormStyle
         self.billingFormStyle = billingFormStyle
-        self.logger = logger
         let isCVVOptional = paymentFormStyle?.securityCode == nil
         self.cardDetails = CardCreationModel(isCVVOptional: isCVVOptional)
 
@@ -56,11 +53,9 @@ class DefaultPaymentViewModel: PaymentViewModel {
     }
 
     func viewControllerWillAppear() {
-        logger.log(.paymentFormPresented)
     }
 
     func viewControllerCancelled() {
-        logger.log(.paymentFormCanceled)
         cardTokenRequested?(.failure(.userCancelled))
     }
 
@@ -143,16 +138,14 @@ class DefaultPaymentViewModel: PaymentViewModel {
 
 extension DefaultPaymentViewModel: BillingFormViewModelDelegate {
     func onBillingScreenShown() {
-        logger.log(.billingFormPresented)
+
     }
 
     func onTapDoneButton(data: BillingForm) {
-        logger.log(.billingFormSubmit)
         updateBillingData(to: data)
     }
 
     func onTapCancelButton() {
-        logger.log(.billingFormCanceled)
     }
 }
 
@@ -174,10 +167,8 @@ extension DefaultPaymentViewModel: PaymentViewControllerDelegate {
 
     func payButtonIsPressed() {
         guard let card = cardDetails.getCard() else {
-            logger.log(.warn(message: "Pay button pressed without all required fields input"))
             return
         }
-        logger.log(.paymentFormSubmitted)
         isLoading = true
         checkoutAPIService.createToken(.card(card)) { [weak self] result in
             self?.logTokenResult(result)
@@ -247,10 +238,10 @@ extension DefaultPaymentViewModel: PaymentViewControllerDelegate {
 
     private func logTokenResult(_ result: Result<TokenDetails, TokenisationError.TokenRequest>) {
         switch result {
-        case .success(let tokenDetails):
-            logger.log(.paymentFormSubmittedResult(token: tokenDetails.token))
-        case .failure(let requestError):
-            logger.log(.warn(message: "\(requestError.code) " + requestError.localizedDescription))
+        case .success(_):
+            return
+        case .failure(_):
+            return
         }
     }
 }

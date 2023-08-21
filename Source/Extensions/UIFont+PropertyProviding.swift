@@ -7,13 +7,5 @@
 //
 
 import UIKit
-import CheckoutEventLoggerKit
 
-extension UIFont: PropertyProviding {
-    var properties: [FramesLogEvent.Property: AnyCodable] {
-        return [
-            .size: Double(pointSize),
-            .name: fontName
-        ].mapValues(AnyCodable.init(_:))
-    }
-}
+
